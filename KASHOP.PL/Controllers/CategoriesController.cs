@@ -1,4 +1,4 @@
-﻿using KASHOP.BLL.Services;
+﻿using KASHOP.BLL.Services.Interfaces;
 using KASHOP.DAL.DTO.Request;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,19 +17,19 @@ namespace KASHOP.PL.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(categoryServices.GetAllCategories());
+            return Ok(categoryServices.GetAll());
         }
         [HttpGet("{id}")]
         public IActionResult Get([FromRoute] int id)
         {
-            var category =categoryServices.GetCategoryById(id);
+            var category =categoryServices.GetById(id);
             if (category == null) {return NotFound();}
             return Ok(category);
         }
         [HttpPost]
         public IActionResult create([FromBody] CategoryRequest request) {
 
-            var id = categoryServices.CreateCategory(request);
+            var id = categoryServices.Create(request);
             return Ok(new { message = "add succses" });
         }
         
@@ -37,7 +37,7 @@ namespace KASHOP.PL.Controllers
         [HttpPatch("{id}")]
         public IActionResult Update([FromRoute] int id, [FromBody] CategoryRequest request)
         {
-            var updated=categoryServices.UpdateCategory(id, request);
+            var updated=categoryServices.Update(id, request);
             return updated>0?Ok():NotFound();
         }
         [HttpPatch("ToggleStatus/{id}")]
@@ -49,7 +49,7 @@ namespace KASHOP.PL.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var deleted=categoryServices.DeleteCategory(id);
+            var deleted=categoryServices.Delete(id);
             return deleted>0?Ok():NotFound();
         }
 
