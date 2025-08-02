@@ -83,7 +83,7 @@ namespace KASHOP.DAL.Utils
                     Email = "anas@gmail.com",
                     FullName = "anas basha",
                     PhoneNumber = "0597232202",
-                    UserName = "abasha"
+                    UserName = "nbasha"
                 };
                 await _userManager.CreateAsync(user1,"Pass@1212");
                 await _userManager.CreateAsync(user2,"Pass@1212");

@@ -28,6 +28,7 @@ namespace KASHOP.PL
             builder.Services.AddScoped<IBrandRepository, BrandRepositories>();
             builder.Services.AddScoped<IBrandServices, BrandServices>();
             builder.Services.AddScoped<ISeedData,SeedData>();
+            builder.Services.AddScoped<IAuthenticationServices, AuthenticationServices>();
             builder.Services.AddIdentity<ApplicationUser,IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
