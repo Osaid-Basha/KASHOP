@@ -8,6 +8,6 @@ namespace KASHOP.DAL.DTO.Responses
 {
     public class UserResponses
     {
-        public string Email {  get; set; }
+        public string Token {  get; set; }
     }
 }

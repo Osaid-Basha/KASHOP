@@ -26,7 +26,7 @@ namespace KASHOP.PL.Areas.Identity.Controllers
             return Ok(Result);
         }
         [HttpPost("Login")]
-        public async Task<ActionResult<UserResponses>> Login(DAL.DTO.Request.LoginRequest loginRequest)
+        public async Task<ActionResult<UserResponses>> Login(DAL.DTO.Request.LoginRequest loginRequest) 
         {
             var Result = await _authenticationServices.LoginAsync(loginRequest);
             return Ok(Result);

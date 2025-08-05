@@ -35,9 +35,14 @@ namespace KASHOP.BLL.Services.Class
             return _genericRepository.Remove(generic);
         }
 
-        public IEnumerable<TResponse> GetAll()
+        public IEnumerable<TResponse> GetAll(bool onlyActive=false)
         {
             var generic = _genericRepository.GetAll();
+            if (onlyActive) {
+
+                generic= generic.Where(e=>e.Status==Status.Active);
+                
+            }
             return generic.Adapt<IEnumerable<TResponse>>();
         }
 

@@ -1,26 +1,26 @@
 ﻿using KASHOP.BLL.Services.Interfaces;
-using KASHOP.DAL.DTO.Request;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KASHOP.PL.Controllers
+namespace KASHOP.PL.Areas.Customer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[area]/[controller]")]
     [ApiController]
-    [Authorize]
-    public class BrandController : ControllerBase
+    [Area("Customer")]
+    [Authorize(Roles = "Customer")]
+    public class BrandsController : ControllerBase
     {
         private readonly IBrandServices BrandServices;
 
-        public BrandController(IBrandServices BrandServices)
+        public BrandsController(IBrandServices BrandServices)
         {
             this.BrandServices = BrandServices;
         }
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(BrandServices.GetAll());
+            return Ok(BrandServices.GetAll(true));
         }
         [HttpGet("{id}")]
         public IActionResult Get([FromRoute] int id)
@@ -29,6 +29,5 @@ namespace KASHOP.PL.Controllers
             if (brand == null) { return NotFound(); }
             return Ok(brand);
         }
-       
     }
 }

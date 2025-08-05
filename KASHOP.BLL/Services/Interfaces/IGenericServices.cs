@@ -11,7 +11,7 @@ namespace KASHOP.BLL.Services.Interfaces
     public interface IGenericServices<TRequest, TResponse,TEntity>
     {
         int Create(TRequest request);
-        IEnumerable<TResponse> GetAll();
+        IEnumerable<TResponse> GetAll(bool onlyActive = false);
 
         TResponse? GetById(int id);
         int Update(int id, TRequest request);

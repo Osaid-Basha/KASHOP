@@ -3,9 +3,13 @@ using KASHOP.DAL.DTO.Request;
 using KASHOP.DAL.DTO.Responses;
 using KASHOP.DAL.Model;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,11 +18,15 @@ namespace KASHOP.BLL.Services.Class
     public class AuthenticationServices : IAuthenticationServices
     {
         private readonly UserManager<ApplicationUser> _userManager;
-
-        public AuthenticationServices(UserManager<ApplicationUser> userManager)
+        private readonly IConfiguration _configuration;
+       public AuthenticationServices(UserManager<ApplicationUser> userManager,IConfiguration configuration)
         {
             this._userManager = userManager;
+            _configuration = configuration;
         }
+
+        public IConfiguration Configuration { get; }
+
         public async Task<UserResponses> LoginAsync(LoginRequest loginRequest)
         {
             var user=await _userManager.FindByEmailAsync(loginRequest.Email);
@@ -32,12 +40,12 @@ namespace KASHOP.BLL.Services.Class
             {
                 throw new Exception("Invalid email or password");
             }
-            
+            var token=await CreateTokenAsync(user);
 
 
                 return new UserResponses()
                 {
-                    Email = loginRequest.Email,
+                    Token = token,
                 };
             
             
@@ -58,7 +66,7 @@ namespace KASHOP.BLL.Services.Class
             {
                 return new UserResponses()
                 {
-                    Email = registerRequest.Email,
+                    Token = registerRequest.Email,
                 };
 
             }
@@ -68,6 +76,33 @@ namespace KASHOP.BLL.Services.Class
                
             }
 
+            } 
+
+        private async Task<string> CreateTokenAsync(ApplicationUser user)
+        {
+            var Claims = new List<Claim>()
+            {
+                new Claim(ClaimTypes.Email,user.Email),
+                new Claim(ClaimTypes.Name,user.UserName),
+                new Claim(ClaimTypes.NameIdentifier,user.Id),
+
+
+            };
+            var Roles =await _userManager.GetRolesAsync(user);
+            foreach (var role in Roles) {
+
+                Claims.Add(new Claim(ClaimTypes.Role, role));
             }
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.GetSection("jwtOptios")["SecretKey"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var token = new JwtSecurityToken(
+                claims: Claims,
+                expires: DateTime.Now.AddDays(15),
+                signingCredentials: credentials
+                );
+            return new JwtSecurityTokenHandler().WriteToken(token);
+
+
+        }
     }
 }
