@@ -3,6 +3,8 @@ using KASHOP.DAL.DTO.Request;
 using KASHOP.DAL.DTO.Responses;
 using KASHOP.DAL.Model;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -19,20 +21,27 @@ namespace KASHOP.BLL.Services.Class
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
-       public AuthenticationServices(UserManager<ApplicationUser> userManager,IConfiguration configuration)
+        private readonly IEmailSender _emailSender;
+
+        public AuthenticationServices(UserManager<ApplicationUser> userManager,IConfiguration configuration, IEmailSender emailSender )
         {
-            this._userManager = userManager;
+            _userManager = userManager;
             _configuration = configuration;
+            _emailSender = emailSender;
         }
 
         public IConfiguration Configuration { get; }
 
-        public async Task<UserResponses> LoginAsync(LoginRequest loginRequest)
+        public async Task<UserResponses> LoginAsync(DAL.DTO.Request.LoginRequest loginRequest)
         {
             var user=await _userManager.FindByEmailAsync(loginRequest.Email);
             if (user is null)
             {
                 throw new Exception("Invalid email or password");
+            }
+            if(!await _userManager.IsEmailConfirmedAsync(user))
+            {
+                throw new Exception("please confirm youe email");
             }
 
            var isPassValid= await _userManager.CheckPasswordAsync(user, loginRequest.Password);
@@ -50,8 +59,24 @@ namespace KASHOP.BLL.Services.Class
             
             
         }
+        public async Task<string> ConfirmEmail(string token, string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user is null)
+            {
 
-        public async Task<UserResponses> RegisterAsync(RegisterRequest registerRequest)
+                throw new Exception("user not found");
+            }
+            var result=await _userManager.ConfirmEmailAsync(user,token);
+            if (result.Succeeded)
+            {
+                return "email confirmed Succeefuly";
+            }
+            return "email confirmation faild";
+        }
+
+
+        public async Task<UserResponses> RegisterAsync(DAL.DTO.Request.RegisterRequest registerRequest)
         {
             var user = new ApplicationUser()
             {
@@ -64,6 +89,10 @@ namespace KASHOP.BLL.Services.Class
 
             if (Result.Succeeded)
             {
+               var token= await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                var escapeToken=Uri.EscapeDataString(token);
+                var emailUrl = $"https://localhost:7080/api/identity/Account/ConfirmEmail?token={escapeToken}&userId={user.Id}";
+                await _emailSender.SendEmailAsync(user.Email, "welcome", $"<h1 class='danger' > Hello welcome {user.UserName}</h1>"+$"<a href='{emailUrl}'>confirm </a>");
                 return new UserResponses()
                 {
                     Token = registerRequest.Email,
@@ -104,5 +133,36 @@ namespace KASHOP.BLL.Services.Class
 
 
         }
+        public async Task<bool> ForgotPassowrd(DAL.DTO.Request.ForgotPasswordRequest request)
+        {
+            var user =await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) { throw new Exception("user not found"); }
+
+            var random=new Random();
+            var code = random.Next(1000, 9999).ToString();
+            user.CodeResetPassword = code;
+            user.PasswordResetCodeExpiry= DateTime.UtcNow.AddMinutes(15);
+            await _userManager.UpdateAsync(user);
+            await _emailSender.SendEmailAsync(request.Email,"reser password",$"<p>code is {code}");
+            return true;
+        }
+        public async Task<bool> ResetPassword(DAL.DTO.Request.ResetPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if(user == null) { throw new Exception("user not found"); }
+            if(user.CodeResetPassword !=request.Code)return false;
+            if(user.PasswordResetCodeExpiry <DateTime.UtcNow) return false;
+            var token=await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+            if (result.Succeeded)
+            {
+                await _emailSender.SendEmailAsync(request.Email, "change password", "<h1> your password is changed </h1>");
+            }
+            return true;
+
+        }
+       
+
+
     }
 }

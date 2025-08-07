@@ -12,5 +12,9 @@ namespace KASHOP.BLL.Services.Interfaces
     {
         Task<UserResponses> LoginAsync(LoginRequest loginRequest);
         Task<UserResponses> RegisterAsync(RegisterRequest registerRequest);
+        Task<string> ConfirmEmail(string token, string userId);
+        Task<bool> ForgotPassowrd(DAL.DTO.Request.ForgotPasswordRequest request);
+        Task<bool> ResetPassword(DAL.DTO.Request.ResetPasswordRequest request);
+
     }
 }
