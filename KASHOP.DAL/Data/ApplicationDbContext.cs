@@ -12,7 +12,8 @@ namespace KASHOP.DAL.Data
 {
     public class ApplicationDbContext:IdentityDbContext<ApplicationUser>
     {
-         public DbSet<Category> categories { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> categories { get; set; }
         public DbSet<Brand> brands { get; set; }
         
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)

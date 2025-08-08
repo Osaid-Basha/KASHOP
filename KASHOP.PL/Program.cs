@@ -33,6 +33,10 @@ namespace KASHOP.PL
             builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
             builder.Services.AddScoped<ICategoryServices,CategoryServices>();
             builder.Services.AddScoped<IBrandRepository, BrandRepositories>();
+            builder.Services.AddScoped<IProductRepository, ProductRepositories>();
+            builder.Services.AddScoped<IProductServices, ProductServices>();
+            builder.Services.AddScoped<IFileServices, FileServices>();
+
             builder.Services.AddScoped<IBrandServices, BrandServices>();
             builder.Services.AddScoped<ISeedData,SeedData>();
             builder.Services.AddScoped<IAuthenticationServices, AuthenticationServices>();
@@ -42,7 +46,7 @@ namespace KASHOP.PL
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
-                options.Password.RequiredLength = 10;
+                options.Password.RequiredLength = 8;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -87,7 +91,7 @@ namespace KASHOP.PL
 
             app.UseAuthorization();
 
-
+            app.UseStaticFiles();
             app.MapControllers();
 
             app.Run();

@@ -9,5 +9,6 @@ namespace KASHOP.DAL.Model
     public class Category:BaseModel
     {
         public string Name { get; set; }
+        public List<Product> Products { get; set; }=new List<Product>();
     }
 }
