@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Stripe;
 using System.Text;
 
 namespace KASHOP.PL
@@ -36,13 +37,29 @@ namespace KASHOP.PL
             builder.Services.AddScoped<IProductRepository, ProductRepositories>();
             builder.Services.AddScoped<IProductServices, ProductServices>();
             builder.Services.AddScoped<IFileServices, FileServices>();
-
+            builder.Services.AddScoped<ICartServices,CartServices>();
+            builder.Services.AddScoped<ICartRepository,CartRepository>();
             builder.Services.AddScoped<IBrandServices, BrandServices>();
             builder.Services.AddScoped<ISeedData,SeedData>();
             builder.Services.AddScoped<IAuthenticationServices, AuthenticationServices>();
-         
+            builder.Services.AddScoped<ICheckOutServices, CheckOutServices>();
+            builder.Services.AddScoped<ICheckOutRepository, CheckOutRepository>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+
+
 
             builder.Services.AddScoped<IEmailSender, EmailSetting>();
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowFrontend",
+                    policy =>
+                    {
+                        policy.WithOrigins("http://localhost:5173") 
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
@@ -52,6 +69,9 @@ namespace KASHOP.PL
                 options.Password.RequireLowercase = true;
                 options.Password.RequireUppercase = true;
                 options.User.RequireUniqueEmail = true;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+
                 
             }).AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -74,6 +94,8 @@ namespace KASHOP.PL
                             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("jwtOptios")["SecretKey"]))
                         };
                     });
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -88,6 +110,7 @@ namespace KASHOP.PL
            await  objectOfSeedData.DataSeedingAsync();
             await objectOfSeedData.IdentityDataSeedingAsync();
             app.UseHttpsRedirection();
+            app.UseCors("AllowFrontend");
 
             app.UseAuthorization();
 

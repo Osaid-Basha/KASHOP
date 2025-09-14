@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 
 namespace KASHOP.DAL.Repositories.Interfaces
 {
-    public interface IProductRepository:IGenericRepository<Product>
+    public interface IOrderRepository
     {
-        public  Task DecreaseQuantityAsync(List<(int productId,int quantity)> items);
+        Task<Order?> GetUserByOrderAsync(int id);
+        Task<Order?> addAsync(Order order);
     }
 }

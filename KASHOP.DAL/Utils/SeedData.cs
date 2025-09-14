@@ -40,16 +40,15 @@ namespace KASHOP.DAL.Utils
                     new Category { Name = "Mobail" }
                     );
             }
-            if (!await _context.brands.AnyAsync()) {
-
+            if (!await _context.brands.AnyAsync())
+            {
                 await _context.brands.AddRangeAsync(
-                    new Brand { Name = "Samsung" },
-                    new Brand { Name = "Apple" },
-                    new Brand { Name = "Nike" }
-
-
-                    );
+                    new Brand { Name = "Samsung", MainImage = "samsung.png" },
+                    new Brand { Name = "Apple", MainImage = "apple.png" },
+                    new Brand { Name = "Nike", MainImage = "nike.png" }
+                );
             }
+
             await _context.SaveChangesAsync();
         }
 

@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace KASHOP.PL.Areas.Customer.Controllers
+namespace KASHOP.PL.Areas.Identity.Controllers
 {
-    [Route("api/[area]/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    [Area("Customer")]
-    [Authorize(Roles = "Customer")]
+    
+    
     public class ProductsController : ControllerBase
     {
         private readonly IProductServices ProductServices;
@@ -20,14 +20,15 @@ namespace KASHOP.PL.Areas.Customer.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(ProductServices.GetAll(true));
+            var Product = ProductServices.GetAll();
+            return Ok(Product);
         }
         [HttpGet("{id}")]
         public IActionResult Get([FromRoute] int id)
         {
-            var brand = ProductServices.GetById(id);
-            if (brand == null) { return NotFound(); }
-            return Ok(brand);
+            var Product = ProductServices.GetById(id);
+            if (Product == null) { return NotFound(); }
+            return Ok(Product);
         }
     }
 }

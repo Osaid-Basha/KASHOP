@@ -12,10 +12,12 @@ namespace KASHOP.DAL.Data
 {
     public class ApplicationDbContext:IdentityDbContext<ApplicationUser>
     {
+        public DbSet<Cart> carts {  get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<Category> categories { get; set; }
         public DbSet<Brand> brands { get; set; }
-        
+        public DbSet<Order> orders { get; set; }
+        public DbSet<OrderItem> orderItems { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options): base(options)
         {
         }

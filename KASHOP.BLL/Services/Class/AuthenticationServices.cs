@@ -2,6 +2,7 @@
 using KASHOP.DAL.DTO.Request;
 using KASHOP.DAL.DTO.Responses;
 using KASHOP.DAL.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -23,14 +24,20 @@ namespace KASHOP.BLL.Services.Class
         private readonly IConfiguration _configuration;
         private readonly IEmailSender _emailSender;
 
-        public AuthenticationServices(UserManager<ApplicationUser> userManager,IConfiguration configuration, IEmailSender emailSender )
+        public AuthenticationServices(UserManager<ApplicationUser> userManager,
+            IConfiguration configuration,
+            IEmailSender emailSender ,
+            SignInManager<ApplicationUser> signInManager
+            )
         {
             _userManager = userManager;
             _configuration = configuration;
             _emailSender = emailSender;
+            SignInManager = signInManager;
         }
 
         public IConfiguration Configuration { get; }
+        public SignInManager<ApplicationUser> SignInManager { get; }
 
         public async Task<UserResponses> LoginAsync(DAL.DTO.Request.LoginRequest loginRequest)
         {
@@ -39,23 +46,34 @@ namespace KASHOP.BLL.Services.Class
             {
                 throw new Exception("Invalid email or password");
             }
-            if(!await _userManager.IsEmailConfirmedAsync(user))
-            {
-                throw new Exception("please confirm youe email");
-            }
-
-           var isPassValid= await _userManager.CheckPasswordAsync(user, loginRequest.Password);
-            if (!isPassValid)
-            {
-                throw new Exception("Invalid email or password");
-            }
-            var token=await CreateTokenAsync(user);
-
+            var result=await SignInManager.CheckPasswordSignInAsync(user, loginRequest.Password,true);
+            if (result.Succeeded)
+            {    
+                var token=await CreateTokenAsync(user);
 
                 return new UserResponses()
                 {
                     Token = token,
                 };
+
+            }
+            else if (result.IsLockedOut) 
+            {
+                throw new Exception("your account is locked");
+            }
+            else if (result.IsNotAllowed)
+            {
+                throw new Exception("please confirm your email");
+            }
+            else
+            {
+                throw new Exception("Invalid email or password");
+
+            }
+            
+
+
+               
             
             
         }
@@ -76,7 +94,7 @@ namespace KASHOP.BLL.Services.Class
         }
 
 
-        public async Task<UserResponses> RegisterAsync(DAL.DTO.Request.RegisterRequest registerRequest)
+        public async Task<UserResponses> RegisterAsync(DAL.DTO.Request.RegisterRequest registerRequest, HttpRequest HttpRequest)
         {
             var user = new ApplicationUser()
             {
@@ -91,7 +109,8 @@ namespace KASHOP.BLL.Services.Class
             {
                var token= await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 var escapeToken=Uri.EscapeDataString(token);
-                var emailUrl = $"https://localhost:7080/api/identity/Account/ConfirmEmail?token={escapeToken}&userId={user.Id}";
+               var emailUrl = $"{HttpRequest.Scheme}://{HttpRequest.Host}/api/identity/Account/ConfirmEmail?token={escapeToken}&userId={user.Id}";
+                await _userManager.AddToRoleAsync(user, "Customer");
                 await _emailSender.SendEmailAsync(user.Email, "welcome", $"<h1 class='danger' > Hello welcome {user.UserName}</h1>"+$"<a href='{emailUrl}'>confirm </a>");
                 return new UserResponses()
                 {
@@ -101,11 +120,12 @@ namespace KASHOP.BLL.Services.Class
             }
             else
             {
-                throw new Exception($"{Result.Errors}");
-               
+                var errors = string.Join(", ", Result.Errors.Select(e => e.Description));
+                throw new Exception(errors);
             }
 
-            } 
+
+        }
 
         private async Task<string> CreateTokenAsync(ApplicationUser user)
         {

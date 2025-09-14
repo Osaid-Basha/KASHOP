@@ -22,7 +22,7 @@ namespace KASHOP.PL.Areas.Identity.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<UserResponses>>Register(DAL.DTO.Request.RegisterRequest registerRequest)
         {
-            var Result =await _authenticationServices.RegisterAsync(registerRequest);
+            var Result =await _authenticationServices.RegisterAsync(registerRequest,Request);
             return Ok(Result);
         }
         [HttpPost("Login")]
