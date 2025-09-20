@@ -4,6 +4,7 @@ using KASHOP.DAL.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,6 +36,10 @@ namespace KASHOP.DAL.Repositories.Class
             await _context.SaveChangesAsync();
             
         }
+        public  List<Product> GetAllProductWithImage()
+        {
+            return  _context.Products.Include(p=>p.SubImages).ToList();
 
+        }
     }
 }

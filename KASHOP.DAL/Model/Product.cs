@@ -22,7 +22,7 @@ namespace KASHOP.DAL.Model
         public Brand? Brand { get; set; }
 
 
-
+        public List<ProductImage> SubImages { get; set; }=new List<ProductImage>();
 
     }
 }

@@ -23,13 +23,13 @@ namespace KASHOP.PL.Areas.Admin.Controllers
         public async Task<IActionResult> Create([FromForm] ProductRequest request) {
 
 
-            var result = await productServices.CreateFile(request);
+            var result = await productServices.CreateProduct(request);
             return Ok(result);
         }
         [HttpGet("")]
         public IActionResult GetAll()
         {
-            return Ok(productServices.GetAll());
+            return Ok(productServices.GetAllProducts(Request));
         }
     }
 }

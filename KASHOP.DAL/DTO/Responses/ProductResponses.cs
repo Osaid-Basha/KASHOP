@@ -16,6 +16,8 @@ namespace KASHOP.DAL.DTO.Responses
         [JsonIgnore]
         public string MainImage { get; set; }
 
-        public string MainImageUrl => $"https://localhost:7080/images/{MainImage}";
+       
+        public string MainImageUrl { get; set; }
+        public List<string> SubImageUrls { get; set; }=new List<string>();
     }
 }

@@ -14,7 +14,7 @@ namespace KASHOP.DAL.Repositories.Class
     {
         private readonly ApplicationDbContext context;
 
-        public OrderRepository(ApplicationDbContext  context)
+        public OrderRepository(ApplicationDbContext context)
         {
             this.context = context;
         }
@@ -32,5 +32,25 @@ namespace KASHOP.DAL.Repositories.Class
 
 
         }
+        public async Task<List<Order>> GetByStatusAsync(OrderStatus status)
+        {
+            return await context.orders.Where(o => o.status == status).OrderByDescending(o => o.OrderDate).ToListAsync();
+        }
+        public async Task<List<Order>> GetAllWithUserAsync(string userId)
+        {
+            return await context.orders.Where(o => o.UserId == userId).ToListAsync();
+        }
+        public async Task<List<Order>> GetOederByUserAsync(string userId)
+        {
+            return await context.orders.Include(o=>o.User).OrderByDescending(o=>o.OrderDate).ToListAsync();
+        }
+        public async Task<bool> ChangeStatusAsync(int orderId, OrderStatus newStatus)
+        {
+            var order=await context.orders.FindAsync(orderId);
+            if (order == null) return false;
+            order.status = newStatus;
+            var result=await context.SaveChangesAsync();
+            return result >0;
+        }
     }
-}
+ }

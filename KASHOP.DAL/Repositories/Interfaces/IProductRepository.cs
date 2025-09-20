@@ -9,6 +9,7 @@ namespace KASHOP.DAL.Repositories.Interfaces
 {
     public interface IProductRepository:IGenericRepository<Product>
     {
-        public  Task DecreaseQuantityAsync(List<(int productId,int quantity)> items);
+        Task DecreaseQuantityAsync(List<(int productId,int quantity)> items);
+        List<Product> GetAllProductWithImage();
     }
 }

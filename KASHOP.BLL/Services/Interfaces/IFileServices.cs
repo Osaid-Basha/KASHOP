@@ -12,7 +12,7 @@ namespace KASHOP.BLL.Services.Interfaces
 
         Task<string> UploadAsync(IFormFile file);
 
-
+        Task<List<string>> UploadManyAsync(List<IFormFile> files);
 
 
     }

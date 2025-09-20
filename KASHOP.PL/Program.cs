@@ -46,7 +46,10 @@ namespace KASHOP.PL
             builder.Services.AddScoped<ICheckOutRepository, CheckOutRepository>();
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
             builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IUserRepositories, UserRepositories>();
+            builder.Services.AddScoped<IOrderRepository,OrderRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
 
 
             builder.Services.AddScoped<IEmailSender, EmailSetting>();
