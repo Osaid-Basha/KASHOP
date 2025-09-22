@@ -14,7 +14,7 @@ namespace KASHOP.BLL.Services.Interfaces
     public interface IProductServices: IGenericServices<ProductRequest,ProductResponses,Product>
     {
        Task< int> CreateProduct(ProductRequest request);
-        Task<List<ProductResponses>> GetAllProducts(HttpRequest request, bool onlayActive = false);
+        Task<List<ProductResponses>> GetAllProducts(HttpRequest request, bool onlayActive = false, int pageNumber = 1, int pageSize = 1);
 
     }
 }

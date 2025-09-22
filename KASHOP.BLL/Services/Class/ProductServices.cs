@@ -44,7 +44,7 @@ namespace KASHOP.BLL.Services.Class
             return productRepository.Add(entity);
         }
 
-        public async Task<List<ProductResponses>> GetAllProducts(HttpRequest request, bool onlayActive = false)
+        public async Task<List<ProductResponses>> GetAllProducts(HttpRequest request, bool onlayActive = false,int pageNumber=1,int pageSize=1)
         {
             var product = productRepository.GetAllProductWithImage();
             if (onlayActive)
@@ -52,13 +52,21 @@ namespace KASHOP.BLL.Services.Class
 
                 product = product.Where(p => p.Status == Status.Active).ToList();
             }
+            var pagedProducts = product.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
 
-            return product.Select(p => new ProductResponses
+            return pagedProducts.Select(p => new ProductResponses
             {
                 Id = p.Id,
                 Name = p.Name,
                 MainImage =$"{request.Scheme}://{request.Host}/{p.MainImage}",
                 SubImageUrls = p.SubImages.Select(img => $"{request.Scheme}://{request.Host}/{p.Name}").ToList(),
+                Reviews=p.Reviews.Select(r=> new ReviewResponses
+                {
+                    Id=r.Id,
+                    Rate=r.Rate,
+                    Comment=r.Comment,
+                    FullName=r.User.FullName
+                }).ToList(),
             }).ToList();
         }
     }

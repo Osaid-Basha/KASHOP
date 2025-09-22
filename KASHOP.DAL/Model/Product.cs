@@ -1,4 +1,5 @@
-﻿using System;
+﻿using KASHOP.DAL.DTO.Responses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,8 @@ namespace KASHOP.DAL.Model
 
 
         public List<ProductImage> SubImages { get; set; }=new List<ProductImage>();
+        public List<Review> Reviews { get; set; } = new List<Review> { };
+
 
     }
 }

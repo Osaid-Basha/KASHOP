@@ -27,9 +27,9 @@ namespace KASHOP.PL.Areas.Admin.Controllers
             return Ok(result);
         }
         [HttpGet("")]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery]int pageNumber = 1, [FromQuery] int pageSize = 5)
         {
-            return Ok(productServices.GetAllProducts(Request));
+            return Ok(productServices.GetAllProducts(Request,false, pageNumber, pageSize));
         }
     }
 }

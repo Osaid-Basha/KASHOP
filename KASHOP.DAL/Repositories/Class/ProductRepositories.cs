@@ -38,7 +38,7 @@ namespace KASHOP.DAL.Repositories.Class
         }
         public  List<Product> GetAllProductWithImage()
         {
-            return  _context.Products.Include(p=>p.SubImages).ToList();
+            return  _context.Products.Include(p=>p.SubImages).Include(s=>s.Reviews).ThenInclude(r=>r.User).ToList();
 
         }
     }

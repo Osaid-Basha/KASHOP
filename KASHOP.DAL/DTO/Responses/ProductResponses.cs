@@ -19,5 +19,7 @@ namespace KASHOP.DAL.DTO.Responses
        
         public string MainImageUrl { get; set; }
         public List<string> SubImageUrls { get; set; }=new List<string>();
+
+        public List<ReviewResponses> Reviews { get; set; }= new List<ReviewResponses> { };
     }
 }
